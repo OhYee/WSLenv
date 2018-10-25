@@ -10,7 +10,15 @@ command = "{}"
 def pathToWSL(path):
     path = re.sub('([A-Za-z]):[/|\\\\]', "/mnt/\\1/", path)
     path = re.sub('\\\\', '/', path)
-    return "\""+path+"\""
+
+    if path[0:2] == '[[':
+        path = "<'" + path[2:]+"'"
+    elif path[0:2] == ']]':
+        path = ">'" + path[2:]+"'"
+    elif path[0] != '-':bash
+        path = "'" + path + "'"
+  
+    return path
 
 
 def pathToWindows(path):
@@ -40,9 +48,9 @@ if __name__ == "__main__":
         log = Log()
         log.write(sys.argv)
         log.write(args)
-        log.write("wsl " + command + " " + com)
+        log.write('bash -c "' + (command if command != "run" else "") + " " + com + '"')
         log.save()
 
-    out = os.popen("wsl " + command + " " + com).read()
+    out = os.popen('bash -c "' + (command if command != "run" else "") + " " + com + '"').read()
 
     print(pathToWindows(out))
